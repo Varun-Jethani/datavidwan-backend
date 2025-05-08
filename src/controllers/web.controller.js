@@ -6,6 +6,7 @@ import asyncHandler from "../utils/asynchandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { deleteFromCloudinary, uploadToCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/apiresponse.js";
+import fs from "fs";
 
 const  getAllServices = asyncHandler(async (req, res) => {
     try {
@@ -106,13 +107,17 @@ const addImages = asyncHandler(async (req, res) => {
         if (!admin) {
             throw new ApiError(401, "Unauthorized request here");
         }
-        const imageUrls = await Promise.all(
-            images.map(async (image) => {
-                const uploadedImage = await uploadToCloudinary(image.path);
-                return uploadedImage.url;
-            })
-        );
-        const newImages = await Promise.all(
+        
+        const imageUrls = [];
+        for (const image of images) {
+            console.log(image.path)
+            const uploadedImage = await uploadToCloudinary(image.path);
+            if (!uploadedImage) {
+                throw new ApiError(500, "Unable to upload an image to cloudinary");
+            }
+            imageUrls.push(uploadedImage.url);
+        };
+        const newImages = await Promise.all(    
             imageUrls.map((url, index) => {
             return galleryModel.create({
                 title: Array.isArray(titles) ? titles[index] : titles,
@@ -127,6 +132,7 @@ const addImages = asyncHandler(async (req, res) => {
     } catch (error) {
         throw new ApiError(500, error?.message || "Unable to add images");
     }
+
 })
 
 const updateService = asyncHandler(async (req, res) => {
@@ -151,8 +157,8 @@ const updateService = asyncHandler(async (req, res) => {
 
 const updateCourse = asyncHandler(async (req, res) => {
     try {
-        const { id, title, description, tools, modules } = req.body;
-        if (!title || !description || !tools || !modules) {
+        const { id, title, description, tools, modules, heading } = req.body;
+        if (!title || !description || !tools || !modules || !heading) {
             throw new ApiError(400, "Please fill all the fields");
         }
         if (req.files?.coverImage) {
@@ -170,7 +176,7 @@ const updateCourse = asyncHandler(async (req, res) => {
         const coverImage = req.body.coverImage || course.coverImage;
         const updatedCourse = await courseModel.findByIdAndUpdate(
             id,
-            { title, description, tools, modules, coverImage },
+            { title, heading, description, tools, modules, coverImage },
             { new: true }
         );
         if (!updatedCourse) {
