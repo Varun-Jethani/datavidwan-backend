@@ -1,4 +1,19 @@
 import mongoose from "mongoose";
+
+const coursesSchema = new mongoose.Schema(
+  {
+    course: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course",
+    },
+    status:{
+      type: String,
+      enum: ["completed", "in-progress"],
+      default: "in-progress",
+    }
+  }
+);
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -14,6 +29,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    courses: [coursesSchema],
+
   },
   { timestamps: true }
 );

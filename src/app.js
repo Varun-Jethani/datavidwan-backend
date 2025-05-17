@@ -21,9 +21,11 @@ app.use(cookieParser());
 import userRouter from "./routes/user.routes.js";
 import adminRouter from "./routes/admin.routes.js";
 import webRouter from "./routes/web.router.js";
+import blogRouter from "./routes/blog.routes.js";
 app.use("/user", userRouter);
 app.use("/admin", adminRouter);
 app.use("/web",webRouter);
+app.use("/blog", blogRouter);
 
 app.use("/", (req, res) => {
   res.json("Hell");

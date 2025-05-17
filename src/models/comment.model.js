@@ -2,40 +2,36 @@ import mongoose from "mongoose";
 
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
-const blogSchema = new mongoose.Schema(
+const commentSchema = new mongoose.Schema(
     {
-        title:{
+        content: {
             type: String,
             required: true,
         },
-        content:{
-            type: String,
+        blogId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Blog",
             required: true,
         },
-        images:[
-            {
-                type: String,
-                required: true,
-            }
-        ],
-        userid:{
+        userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true,
         },
-        approved:{
+        approved: {
             type: Boolean,
             default: false,
         },
-        approvedBy:{
+        approvedBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Admin",
         },
-        
     },
-    { timestamps: true })
+    { timestamps: true }
+)
 
-blogSchema.plugin(mongooseAggregatePaginate);
 
-const blogModel = mongoose.model("Blog", blogSchema);
-export default blogModel;
+commentSchema.plugin(mongooseAggregatePaginate);
+
+const commentModel = mongoose.model("Comment", commentSchema);
+export default commentModel;

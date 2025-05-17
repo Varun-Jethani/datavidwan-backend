@@ -15,7 +15,7 @@ import {
     deleteImages
 } from "../controllers/web.controller.js";
 
-import { verifyJWT } from "../middlewares/adminAuth.middleware.js";
+import { verifyAdminJWT } from "../middlewares/adminAuth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
 const webRouter = Router();
@@ -23,7 +23,7 @@ const webRouter = Router();
 webRouter.route("/services").get(getAllServices)
 webRouter.route("/courses").get(getAllCourses)
 webRouter.route("/images").get(getAllImages)
-webRouter.use(verifyJWT);
+webRouter.use(verifyAdminJWT);
 webRouter.route("/services").post(addService).put(updateService).delete(deleteService);
 webRouter.route("/courses").post(upload.single("coverImage"), addCourse).put(upload.single("coverImage"), updateCourse).delete(deleteCourse);
 webRouter.route("/images").post(upload.array("images",10), addImages).put(updateImages).delete(deleteImages);

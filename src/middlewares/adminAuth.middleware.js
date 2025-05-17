@@ -5,7 +5,7 @@ import { ApiError } from "../utils/ApiError.js";
 
 
 
-export const verifyJWT = asyncHandler(async (req, _, next) => {
+export const verifyAdminJWT = asyncHandler(async (req, _, next) => {
     try {
         
         const token = req.cookies?.token 
