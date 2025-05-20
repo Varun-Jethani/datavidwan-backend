@@ -22,11 +22,12 @@ import userRouter from "./routes/user.routes.js";
 import adminRouter from "./routes/admin.routes.js";
 import webRouter from "./routes/web.router.js";
 import blogRouter from "./routes/blog.routes.js";
+import CommentRouter from "./routes/comment.routes.js";
 app.use("/user", userRouter);
 app.use("/admin", adminRouter);
 app.use("/web",webRouter);
 app.use("/blog", blogRouter);
-
+app.use("/comment", CommentRouter);
 app.use("/", (req, res) => {
   res.json("Hell");
 });

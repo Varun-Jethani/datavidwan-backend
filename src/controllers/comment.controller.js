@@ -1,7 +1,7 @@
-import asyncHandler from "../utils/asynchandler";
-import { ApiResponse } from "../utils/apiresponse";
-import commentModel from "../models/comment.model";
-import { ApiError } from "../utils/ApiError";
+import asyncHandler from "../utils/asynchandler.js";
+import { ApiResponse } from "../utils/apiresponse.js";
+import commentModel from "../models/comment.model.js";
+import { ApiError } from "../utils/ApiError.js";
 
 // Add Comment
 const addComment = asyncHandler(async (req, res) => {
@@ -11,14 +11,15 @@ const addComment = asyncHandler(async (req, res) => {
     }
     const newComment = await commentModel.create({
         content,
-        post: postId,
-        user: req.user._id
+        blogId: postId,
+        userId: req.user._id
     });
     return res.status(201).json(new ApiResponse(true, "Comment added successfully", newComment));
 });
 
 const approveComment = asyncHandler(async (req, res) => {
     const { commentId } = req.params;
+    console.log(commentId);
     const comment = await commentModel.findById(commentId);
     if (!comment) {
         throw new ApiError(404, "Comment not found");
@@ -35,7 +36,7 @@ const approveComment = asyncHandler(async (req, res) => {
 // Get Comments by blog ID
 const getCommentsByPostId = asyncHandler(async (req, res) => {
     const { postId } = req.params;
-    const comments = await commentModel.find({ blogId: postId }).populate("user", "name");
+    const comments = await commentModel.find({ blogId: postId }).populate("userId", "name");
     return res.status(200).json(new ApiResponse(true, "Comments retrieved successfully", comments));
 });
 
@@ -46,7 +47,7 @@ const deleteComment = asyncHandler(async (req, res) => {
     if (!comment) {
         throw new ApiError(404, "Comment not found");
     }
-    if (comment.user.toString() !== req.user._id.toString() || !req.admin) {
+    if (comment.userId.toString() !== req.user?.id.toString() && !req.admin) {
         throw new ApiError(403, "You are not authorized to delete this comment");
     }
 
