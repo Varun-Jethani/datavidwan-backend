@@ -7,7 +7,8 @@ import {
     approveBlogPost,
     deleteBlogPost,
     getUserBlogPosts,
-    getApprovedBlogPosts
+    getApprovedBlogPosts,
+    updateBlogPost
  } from "../controllers/blog.controller.js";
 
 
@@ -27,6 +28,9 @@ blogRouter.route("/user/:id")
     .get(getBlogPostById)
     .delete(verifyJWT, deleteBlogPost);
 
+
+blogRouter.route("/update/:id")
+    .put(verifyJWT, updateBlogPost);
 
 
 

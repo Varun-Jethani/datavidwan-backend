@@ -5,8 +5,8 @@ import { uploadToCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js
 
 // Create a new blog post
 const createBlogPost = asyncHandler(async (req, res) => {
-    const { title, content } = req.body;
-    if (!title || !content) {
+    const { title, content, category, exerpt } = req.body;
+    if (!title || !content || !category || !exerpt) {
         return res.status(400).json(new ApiResponse(false, "Please fill all the fields"));
     }
 
@@ -17,7 +17,7 @@ const createBlogPost = asyncHandler(async (req, res) => {
         images[i] = uploadedImage.url;
     }
 
-    const blogPost = await blogModel.create({ title, content, images, userid: req.user.id });
+    const blogPost = await blogModel.create({ title, exerpt, content, category, images, userid: req.user.id });
     return res.status(201).json(new ApiResponse(true, "Blog post created successfully", blogPost));
 });
 
@@ -52,6 +52,8 @@ const getApprovedBlogPosts = asyncHandler(async (req, res) => { // Fetch all blo
                 $project: {
                     _id: 1,
                     title: 1,
+                    exerpt: 1,
+                    category: 1,
                     images: 1,
                     createdAt: 1,
                     writer: 1
@@ -132,21 +134,26 @@ const getAllBlogPosts = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(true, "All Blog Posts", blogPosts));
 });
 
-// const removeApproval = asyncHandler(async (req, res) => {
-//     const blogPost = await blogModel.findById(req.params.id);
-//     if (!blogPost) {
-//         return res.status(404).json(new ApiResponse(false, "Blog post not found"));
-//     }
-//     if (!req.admin) {
-//         return res.status(403).json(new ApiResponse(false, "Not authorized to remove approval"));
-//     }
+const updateBlogPost = asyncHandler(async (req, res) => {
+    const { title, content, category, exerpt } = req.body;
+    if (!title || !content || !category || !exerpt) {
+        return res.status(400).json(new ApiResponse(false, "Please fill all the fields"));
+    }
 
-//     blogPost.approved = false;
-//     blogPost.approvedBy = null; // Clear the approvedBy field
-//     await blogPost.save();
+    const blogPost = await blogModel.findById(req.params.id);
+    if (!blogPost) {
+        return res.status(404).json(new ApiResponse(false, "Blog post not found"));
+    }
 
-//     return res.status(200).json(new ApiResponse(true, "Blog post approval removed successfully", blogPost));
-// });
+    blogPost.title = title;
+    blogPost.content = content;
+    blogPost.category = category;
+    blogPost.exerpt = exerpt;
+
+    await blogPost.save();
+    return res.status(200).json(new ApiResponse(true, "Blog post updated successfully", blogPost));
+});
+
 
 export {
     createBlogPost,
@@ -155,7 +162,8 @@ export {
     approveBlogPost,
     deleteBlogPost,
     getUserBlogPosts,
-    getApprovedBlogPosts
+    getApprovedBlogPosts,
+    updateBlogPost
 };
 
 

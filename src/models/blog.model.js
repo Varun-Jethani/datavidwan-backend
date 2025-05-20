@@ -8,7 +8,15 @@ const blogSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        exerpt:{
+            type: String,
+            required: true,
+        },
         content:{
+            type: String,
+            required: true,
+        },
+        category:{
             type: String,
             required: true,
         },
