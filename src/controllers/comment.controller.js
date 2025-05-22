@@ -35,6 +35,12 @@ const approveComment = asyncHandler(async (req, res) => {
 // Get Comments by blog ID
 const getCommentsByPostId = asyncHandler(async (req, res) => {
     const { postId } = req.params;
+    const comments = await commentModel.find({ blogId: postId, approved: true }).populate("userId", "name");
+    return res.status(200).json(new ApiResponse(true, "Comments retrieved successfully", comments));
+});
+
+const getAllCommentsByPostId = asyncHandler(async (req, res) => {
+    const { postId } = req.params;
     const comments = await commentModel.find({ blogId: postId }).populate("userId", "name");
     return res.status(200).json(new ApiResponse(true, "Comments retrieved successfully", comments));
 });
@@ -58,6 +64,7 @@ export {
     addComment,
     approveComment,
     getCommentsByPostId,
+    getAllCommentsByPostId,
     deleteComment
 };
 
