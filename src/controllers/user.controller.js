@@ -56,7 +56,7 @@ const loginUser = asyncHandler(async (req, res) => {
           if (err) throw err;
           res
             .cookie("token", token, {
-              httpOnly: true,
+              httpOnly: false,
               secure: process.env.NODE_ENV === "production", // Set secure to true in production
               sameSite: "None", // Required for cross-site cookies
             })
@@ -76,7 +76,7 @@ const loginUser = asyncHandler(async (req, res) => {
 const logoutUser = asyncHandler(async (req, res) => {
   res
     .clearCookie("token", {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "None",
     })

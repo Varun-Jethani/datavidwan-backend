@@ -24,7 +24,6 @@ const createBlogPost = asyncHandler(async (req, res) => {
 // Get all blog posts
 
 const getApprovedBlogPosts = asyncHandler(async (req, res) => { // Fetch all blog posts which are approved having only title, image, username, date with aggregatepaginate
-    console.log("Fetching approved blog posts");
     const { page = 1, limit = 10, sortBy = "createdAt", sortType = -1 } = req.query;
 
     const blogs = await blogModel.aggregatePaginate(

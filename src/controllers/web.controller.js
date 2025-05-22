@@ -102,7 +102,6 @@ const addImages = asyncHandler(async (req, res) => {
             throw new ApiError(400, "Please upload at least one image");
         }
         const images = req.files
-        console.log(images)
         const admin = req.admin._id;
         if (!admin) {
             throw new ApiError(401, "Unauthorized request here");
@@ -110,7 +109,6 @@ const addImages = asyncHandler(async (req, res) => {
         
         const imageUrls = [];
         for (const image of images) {
-            console.log(image.path)
             const uploadedImage = await uploadToCloudinary(image.path);
             if (!uploadedImage) {
                 throw new ApiError(500, "Unable to upload an image to cloudinary");

@@ -17,7 +17,7 @@ export const verifyAdminJWT = asyncHandler(async (req, _, next) => {
         
     
         const decodedToken = jwt.verify(token, `${process.env.JWT_SECRET}`)
-        console.log(decodedToken)
+        
         const admin = await adminModel.findById(decodedToken?.id).select("-password")
         if (!admin) {
             throw new ApiError(401, "Invalid Access Token");

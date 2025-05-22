@@ -19,7 +19,6 @@ const addComment = asyncHandler(async (req, res) => {
 
 const approveComment = asyncHandler(async (req, res) => {
     const { commentId } = req.params;
-    console.log(commentId);
     const comment = await commentModel.findById(commentId);
     if (!comment) {
         throw new ApiError(404, "Comment not found");
