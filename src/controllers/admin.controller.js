@@ -58,7 +58,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
                             secure: process.env.NODE_ENV === "production",
                         })
                         .status(200)
-                        .json(new ApiResponse(true, "Login successful", adminDoc));
+                        .json(new ApiResponse(true, "Login successful",{ token, adminDoc }));
                 }
             );
         } else {
