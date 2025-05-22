@@ -37,8 +37,8 @@ const getAllImages = asyncHandler(async (req, res) => {
 
 const addService = asyncHandler(async (req, res) => {
     try {
-        const { title, description } = req.body;
-        if (!title || !description) {
+        const { title, description, process, benefits } = req.body;
+        if (!title || !description || !process || !benefits) {
             throw new ApiError(400, "Please fill all the fields");
         }
         const existedService = await serviceModel.findOne({ title });
@@ -51,6 +51,8 @@ const addService = asyncHandler(async (req, res) => {
         const newService = await serviceModel.create({
             name:title,
             description,
+            process,
+            benefits,
             admin: req.admin._id
         });
         return res.status(201).json(new ApiResponse(true, "Service created successfully", newService));
@@ -135,13 +137,13 @@ const addImages = asyncHandler(async (req, res) => {
 
 const updateService = asyncHandler(async (req, res) => {
     try {
-        const { id, title, description } = req.body;
-        if (!title || !description) {
+        const { id, title, description, process, benefits } = req.body;
+        if (!title || !description || !process || !benefits) {
             throw new ApiError(400, "Please fill all the fields");
         }
         const updatedService = await serviceModel.findByIdAndUpdate(
             id,
-            { name:title, description },
+            { name:title, description, process, benefits },
             { new: true }
         );
         if (!updatedService) {

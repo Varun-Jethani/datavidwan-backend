@@ -14,6 +14,18 @@ const serviceSchema = new mongoose.Schema(
             required: true,
         }
         ],
+        process:[
+        {
+            type: String,
+            required: true,
+        }
+        ],
+        benefits:[
+        {
+            type: String,
+            required: true,
+        }
+        ],
         admin: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Admin",
