@@ -143,7 +143,7 @@ const updateService = asyncHandler(async (req, res) => {
         }
         const updatedService = await serviceModel.findByIdAndUpdate(
             id,
-            { title, description },
+            { name:title, description },
             { new: true }
         );
         if (!updatedService) {
