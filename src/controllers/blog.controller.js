@@ -2,6 +2,7 @@ import asyncHandler from "../utils/asynchandler.js";
 import { ApiResponse } from "../utils/apiresponse.js";
 import blogModel from "../models/blog.model.js";
 import { uploadToCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
+import commentModel from "../models/comment.model.js";
 
 // Create a new blog post
 const createBlogPost = asyncHandler(async (req, res) => {
@@ -112,7 +113,8 @@ const deleteBlogPost = asyncHandler(async (req, res) => {
     }
 
     await blogModel.findByIdAndDelete(req.params.id);
-    return res.status(200).json(new ApiResponse(true, "Blog post deleted successfully"));
+    await commentModel.deleteMany({ blogId: req.params.id });
+    return res.status(200).json(new ApiResponse(true, "Blog post and its comments deleted successfully"));    
 });
 
 const getUserBlogPosts = asyncHandler(async (req, res) => {

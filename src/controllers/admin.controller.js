@@ -56,6 +56,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
                         .cookie("token", token, {
                             httpOnly: false,
                             secure: process.env.NODE_ENV === "production",
+                            sameSite: "None",
                         })
                         .status(200)
                         .json(new ApiResponse(true, "Login successful",{ token, adminDoc }));
