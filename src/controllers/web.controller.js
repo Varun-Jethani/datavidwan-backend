@@ -63,8 +63,8 @@ const addService = asyncHandler(async (req, res) => {
 
 const addCourse = asyncHandler(async (req, res) => {
     try {
-        const {title, description, tools, modules, heading} = req.body;
-        if (!title || !description || !tools || !modules || !heading) {
+        const {title, description, price, mode, duration, deliverables, tools, modules, heading} = req.body;
+        if (!title || !description || !price || !mode || !duration || !deliverables || !tools || !modules || !heading) {
             throw new ApiError(400, "Please fill all the fields");
         }
         const admin = req.admin._id;
@@ -82,6 +82,10 @@ const addCourse = asyncHandler(async (req, res) => {
             title,
             heading,
             description,
+            price,
+            mode,
+            duration,
+            deliverables,
             tools,
             modules,
             coverImage: coverImage ? uploadedImage.url : null,
@@ -157,8 +161,8 @@ const updateService = asyncHandler(async (req, res) => {
 
 const updateCourse = asyncHandler(async (req, res) => {
     try {
-        const { id, title, description, tools, modules, heading } = req.body;
-        if (!title || !description || !tools || !modules || !heading) {
+        const { id, title, description, price, mode, duration, deliverables, tools, modules, heading } = req.body;
+        if (!title || !description || !price || !mode || !duration || !deliverables || !tools || !modules || !heading) {
             throw new ApiError(400, "Please fill all the fields");
         }
         if (req.files?.coverImage) {
@@ -176,7 +180,7 @@ const updateCourse = asyncHandler(async (req, res) => {
         const coverImage = req.body.coverImage || course.coverImage;
         const updatedCourse = await courseModel.findByIdAndUpdate(
             id,
-            { title, heading, description, tools, modules, coverImage },
+            { title, heading, description, price, mode, duration, deliverables, tools, modules, coverImage },
             { new: true }
         );
         if (!updatedCourse) {

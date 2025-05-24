@@ -5,10 +5,6 @@ const moduleSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  durationHours: {
-    type: Number,
-    required: true,
-  },
   topics: [{ type: String }],
 });
 
@@ -26,6 +22,24 @@ const courseSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    price: {
+      type: Number,
+      required: true,
+    },
+    mode: {
+      type: String,
+      required: true,
+    },
+    duration: {
+      type: Number,
+      required: true,
+    },
+    deliverables: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
     tools: [{
       type: String,
       required: true,
