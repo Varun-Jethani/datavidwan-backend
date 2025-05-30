@@ -93,6 +93,8 @@ const approveBlogPost = asyncHandler(async (req, res) => {
 
     blogPost.approved = true;
     blogPost.approvedBy = req.admin._id; // Assuming req.admin contains the admin details
+    blogPost.status = 1; // Set status to approved
+    blogPost.rejectionReason = ""; // Clear any previous rejection reason
     await blogPost.save();
 
     return res.status(200).json(new ApiResponse(true, "Blog post approved successfully", blogPost));
@@ -150,10 +152,34 @@ const updateBlogPost = asyncHandler(async (req, res) => {
     blogPost.content = content;
     blogPost.category = category;
     blogPost.exerpt = exerpt;
-
+    blogPost.approved = false; // Reset approval status
+    blogPost.approvedBy = null; // Reset approvedBy field
+    blogPost.status = 0; // Reset status to pending
+    blogPost.rejectionReason = ""; // Clear any previous rejection reason
     await blogPost.save();
     return res.status(200).json(new ApiResponse(true, "Blog post updated successfully", blogPost));
 });
+
+const rejectBlogPost = asyncHandler(async (req, res) => {
+    const admin = req.admin;
+    if (!admin) {
+        return res.status(403).json(new ApiResponse(false, "You are not authorized to reject blog posts"));
+    }
+    const blogPost = await blogModel.findById(req.params.id);
+    if (!blogPost) {
+        return res.status(404).json(new ApiResponse(false, "Blog post not found"));
+    }
+
+    blogPost.status = 2; // Set status to rejected
+    blogPost.rejectionReason = req.body.reason || "No reason provided"; // Set rejection reason
+    blogPost.approved = false; // Set approved to false
+    blogPost.approvedBy = admin._id; // Set the admin who rejected the post
+    await blogPost.save();
+
+    return res.status(200).json(new ApiResponse(true, "Blog post rejected successfully", blogPost));
+});
+
+
 
 
 export {
@@ -164,7 +190,8 @@ export {
     deleteBlogPost,
     getUserBlogPosts,
     getApprovedBlogPosts,
-    updateBlogPost
+    updateBlogPost,
+    rejectBlogPost,
 };
 
 

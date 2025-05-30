@@ -8,7 +8,8 @@ import {
     deleteBlogPost,
     getUserBlogPosts,
     getApprovedBlogPosts,
-    updateBlogPost
+    updateBlogPost,
+    rejectBlogPost
  } from "../controllers/blog.controller.js";
 
 
@@ -41,9 +42,8 @@ blogRouter.route("/admin/:id")
     .put(verifyAdminJWT, approveBlogPost)
     .delete(verifyAdminJWT, deleteBlogPost);
 
-
-
-
+blogRouter.route("/reject/:id")
+    .put(verifyAdminJWT, rejectBlogPost);
 
 
 

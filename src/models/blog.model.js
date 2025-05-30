@@ -35,6 +35,15 @@ const blogSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        status:{
+            type: Number,
+            default: 0, // 0: pending, 1: approved, 2: rejected
+            enum: [0, 1, 2],
+        },
+        rejectionReason:{
+            type: String,
+            default: "",
+        },
         approvedBy:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "Admin",
