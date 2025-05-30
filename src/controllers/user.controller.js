@@ -88,30 +88,24 @@ const logoutUser = asyncHandler(async (req, res) => {
 // User Profile
 const userProfile = asyncHandler(async (req, res) => {
   try {
-    const { token } = req.cookies;
-    if (!token) {
-      return res.status(400).json({
+    const user=req.user
+    if (!user) {
+      return res.status(404).json({
         success: false,
-        message: "Not authorized, token missing",
+        message: "User not found",
       });
     }
-    jwt.verify(token, process.env.JWT_SECRET, {}, async (err, userDoc) => {
-      if (err) {
-        return res.status(400).json({
-          success: false,
-          message: "Not authorized, token invalid",
-          error: err.message,
-        });
-      }
-      const user = await userModel.findById(userDoc.id);
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "User not found",
-        });
-      }
-      const { name, email, id } = user;
-      res.json({ name, email, id });
+    const userProfile = await userModel.findById(user.id).select("-password");
+    if (!userProfile) {
+      return res.status(404).json({
+        success: false,
+        message: "User profile not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "User profile retrieved successfully",
+      data: userProfile,
     });
   } catch (e) {
     console.error("Server error:", e);
