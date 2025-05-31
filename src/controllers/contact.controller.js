@@ -2,7 +2,7 @@ import asyncHandler from "../utils/asynchandler.js";
 import ContactModel from "../models/contact.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/apiresponse.js";
-// import sendEmail from "../utils/Emailer.js";
+import sendEmail from "../utils/Emailer.js";
 
 const postContact = asyncHandler(async (req, res) => {
     let { name, email, subject, message } = req.body;
@@ -19,17 +19,17 @@ const postContact = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Subject must be between 2 and 200 characters");
     }
 
-    //  // Optionally, you can send an email notification here
-    // await sendEmail({
-    //     to: email,
-    //     subject: "Contact Form Submission",
-    //     text: `Thank you for contacting us, ${name}. We will get back to you soon.`,
-    //     html: `<p>Thank you for contacting us, <strong>${name}</strong>.</p>
-    //            <p>We have received your message:</p>
-    //            <p><strong>Subject:</strong> ${subject}</p>
-    //            <p><strong>Message:</strong> ${message}</p>
-    //            <p>We will get back to you soon.</p>`
-    // });
+     // Optionally, you can send an email notification here
+    await sendEmail({
+        to: email,
+        subject: "Contact Form Submission",
+        text: `Thank you for contacting us, ${name}. We will get back to you soon.`,
+        html: `<p>Thank you for contacting us, <strong>${name}</strong>.</p>
+               <p>We have received your message:</p>
+               <p><strong>Subject:</strong> ${subject}</p>
+               <p><strong>Message:</strong> ${message}</p>
+               <p>We will get back to you soon.</p>`
+    });
 
 
     // check if emailer has already contacted for the same subject
