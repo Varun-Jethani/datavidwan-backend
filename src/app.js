@@ -25,6 +25,7 @@ import blogRouter from "./routes/blog.routes.js";
 import CommentRouter from "./routes/comment.routes.js";
 import aboutRouter from "./routes/about.routes.js";
 import contactRouter from "./routes/contact.routes.js";
+import consultRouter from "./routes/consult.route.js";
 app.use("/user", userRouter);
 app.use("/admin", adminRouter);
 app.use("/web",webRouter);
@@ -32,6 +33,7 @@ app.use("/blog", blogRouter);
 app.use("/comment", CommentRouter);
 app.use("/about", aboutRouter)
 app.use("/contactus", contactRouter);
+app.use("/consult", consultRouter);
 app.use("/", (req, res) => {
   res.json("Hell");
 });
