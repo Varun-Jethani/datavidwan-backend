@@ -8,6 +8,8 @@ import {
   registerUser,
   userProfile,
   validateToken,
+  verifyEmailOTP,
+  sendOTPAgain,
 } from "../controllers/user.controller.js";
 
 const userRouter = Router();
@@ -16,6 +18,7 @@ userRouter.route("/login").post(loginUser);
 userRouter.route("/logout").post(logoutUser);
 
 userRouter.route("/profile").get(verifyJWT, userProfile);
-
+userRouter.route("/verifyOTP").post(verifyJWT, verifyEmailOTP);
+userRouter.route("/sendOTP").post(verifyJWT, sendOTPAgain);
 
 export default userRouter;

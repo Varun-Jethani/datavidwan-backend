@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     courses: [coursesSchema],
+    verified: {
+      type: Boolean,
+      default: false,
+    },
 
   },
   { timestamps: true }
