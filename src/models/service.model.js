@@ -26,6 +26,10 @@ const serviceSchema = new mongoose.Schema(
             required: true,
         }
         ],
+        order:{
+            type: Number,
+            required: true,
+        },
         admin: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Admin",

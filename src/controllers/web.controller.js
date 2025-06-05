@@ -48,11 +48,15 @@ const addService = asyncHandler(async (req, res) => {
                 message: "Service already exists",
             });
         }
+        //get order of the last service
+        const lastService = await serviceModel.findOne().sort({ order: -1 });
+        const order = lastService ? lastService.order + 1 : 1; // If no services exist, start with order 1
         const newService = await serviceModel.create({
             name:title,
             description,
             process,
             benefits,
+            order,
             admin: req.admin._id
         });
         return res.status(201).json(new ApiResponse(true, "Service created successfully", newService));
@@ -78,6 +82,9 @@ const addCourse = asyncHandler(async (req, res) => {
         if (coverImage){
             uploadedImage = await uploadToCloudinary(coverImage);
         }
+        //order
+        const lastCourse = await courseModel.findOne().sort({ order: -1 });
+        const order = lastCourse ? lastCourse.order + 1 : 1; // If no courses exist, start with order 1
         const newCourse = await courseModel.create({
             title,
             heading,
@@ -88,6 +95,7 @@ const addCourse = asyncHandler(async (req, res) => {
             deliverables,
             tools,
             modules,
+            order,
             coverImage: coverImage ? uploadedImage.url : null,
             admin
         });
@@ -147,7 +155,7 @@ const updateService = asyncHandler(async (req, res) => {
         }
         const updatedService = await serviceModel.findByIdAndUpdate(
             id,
-            { name:title, description, process, benefits },
+            { name:title, description, process, benefits},
             { new: true }
         );
         if (!updatedService) {
@@ -255,6 +263,50 @@ const deleteImages = asyncHandler(async (req, res) => {
     }
 })
 
+const changeCourseOrder = asyncHandler(async (req, res) => {
+    // drag and drop functionality to change the order of courses
+    const {orderedCourseIds} = req.body;
+    if (!orderedCourseIds || !Array.isArray(orderedCourseIds)) {
+        throw new ApiError(400, "Please provide an array of course IDs");
+    }
+    try {
+        const total = orderedCourseIds.length;
+        const bulkOps = orderedCourseIds.map((courseId, index) => ({
+            updateOne:
+            {
+                filter: { _id: courseId },
+                update: { order: total - index } // Reverse order to maintain the drag and drop effect
+            }
+        }));
+        await courseModel.bulkWrite(bulkOps);
+        return res.status(200).json(new ApiResponse(true, "Course order updated successfully"));
+        } catch (error) {
+    throw new ApiError(500, error?.message || "Unable to update course order");
+    }
+});
+
+const changeServiceOrder = asyncHandler(async (req, res) => {
+    // drag and drop functionality to change the order of services
+    const { orderedServiceIds } = req.body;
+    if (!orderedServiceIds || !Array.isArray(orderedServiceIds)) {
+        throw new ApiError(400, "Please provide an array of service IDs");
+    }
+    try {
+        const total = orderedServiceIds.length;
+        const bulkOps = orderedServiceIds.map((serviceId, index) => ({
+            updateOne: {
+                filter: { _id: serviceId },
+                update: { order: total - index } // Reverse order to maintain the drag and drop effect
+            }
+        }));
+        await serviceModel.bulkWrite(bulkOps);
+        return res.status(200).json(new ApiResponse(true, "Service order updated successfully"));
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Unable to update service order");
+    }
+}
+);
+
 export {
     getAllServices,
     getAllCourses,
@@ -267,7 +319,9 @@ export {
     updateImages,
     deleteService,
     deleteCourse,
-    deleteImages
+    deleteImages,
+    changeCourseOrder,
+    changeServiceOrder
 }
 
 
