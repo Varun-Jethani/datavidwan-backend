@@ -6,7 +6,8 @@ import asyncHandler from "../utils/asynchandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { deleteFromCloudinary, uploadToCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/apiresponse.js";
-import fs from "fs";
+import ContactModel from "../models/contact.model.js";
+import ConsultModel from "../models/consult.model.js";
 
 const  getAllServices = asyncHandler(async (req, res) => {
     try {
@@ -307,6 +308,26 @@ const changeServiceOrder = asyncHandler(async (req, res) => {
 }
 );
 
+const getStats = asyncHandler(async (req, res) => {
+    try {
+        const totalServices = await serviceModel.countDocuments();
+        const totalCourses = await courseModel.countDocuments();
+        const totalImages = await galleryModel.countDocuments();
+        const totalContacts = await ContactModel.countDocuments();
+        const totalConsults = await ConsultModel.countDocuments();
+
+        return res.status(200).json(new ApiResponse(true, "Stats fetched successfully", {
+            totalServices,
+            totalCourses,
+            totalImages,
+            totalContacts,
+            totalConsults
+        }));
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Unable to fetch stats");
+    }
+})
+
 export {
     getAllServices,
     getAllCourses,
@@ -321,7 +342,8 @@ export {
     deleteCourse,
     deleteImages,
     changeCourseOrder,
-    changeServiceOrder
+    changeServiceOrder,
+    getStats
 }
 
 

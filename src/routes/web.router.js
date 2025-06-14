@@ -14,7 +14,8 @@ import {
     deleteCourse,
     deleteImages,
     changeCourseOrder,
-    changeServiceOrder
+    changeServiceOrder,
+    getStats
 } from "../controllers/web.controller.js";
 
 import { verifyAdminJWT } from "../middlewares/adminAuth.middleware.js";
@@ -34,5 +35,6 @@ webRouter.route("/images").post(upload.array("images",10), addImages).put(update
 webRouter.route("/image/:id").delete(deleteImages);
 webRouter.route("/courses/order").put(changeCourseOrder);
 webRouter.route("/services/order").put(changeServiceOrder);
+webRouter.route("/stats").get(verifyAdminJWT,getStats);
 
 export default webRouter;
