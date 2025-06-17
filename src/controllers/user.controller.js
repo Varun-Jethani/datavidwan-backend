@@ -76,13 +76,26 @@ const verifyEmailOTP = asyncHandler(async (req, res) => {
     });
   }
 
-  await userModel.findByIdAndUpdate(userOTP.userId, { verified: true });
+  const userDoc = await userModel.findByIdAndUpdate(userOTP.userId, { verified: true });
   await UserOTPSchema.deleteMany({ userId: userOTP.userId }); // Remove OTP after verification
 
-  return res.status(200).json({
-    success: true,
-    message: "Email verified successfully",
-  });
+ jwt.sign(
+        { email: userDoc.email, id: userDoc._id, name: userDoc.name },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" },
+        (err, token) => {
+          if (err) throw err;
+          res
+            .cookie("token", token, {
+              httpOnly: false,
+              secure: process.env.NODE_ENV === "production", // Set secure to true in production
+              sameSite: "None", // Required for cross-site cookies
+            })
+            .json({ token, user: userDoc, message:"OTP verified Successfully" }); // Include token in response
+        }
+      );
+
+ 
 });
 
 //create OTP for email verification normal function
@@ -140,7 +153,24 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new Error("Please fill all the fields");
   }
   const userDoc = await userModel.findOne({ email });
-  if (userDoc) {
+  if (userDoc && !userDoc.verified) {
+    createEmailOTP(userDoc._id, userDoc.email)
+      .then(() => {
+        return res.status(300).json({
+          success: false,
+          message: "Email not verified. OTP sent to your email.",
+        });
+      })
+      .catch((error) => {
+        console.error("Error sending OTP:", error);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to send OTP for email verification",
+        });
+      });
+  }
+
+  else if (userDoc) {
     const pass = bcrypt.compareSync(password, userDoc.password);
     if (pass) {
       jwt.sign(
