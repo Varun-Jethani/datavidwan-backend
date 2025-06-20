@@ -25,7 +25,7 @@ const consultSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-},{timeseries: true});
+},{timestamps: true});
 
 const consultModel = mongoose.model('Consult', consultSchema);
 export default consultModel;
