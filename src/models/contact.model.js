@@ -34,7 +34,7 @@ const contactSchema = new mongoose.Schema({
         minlength: 5,
         maxlength: 1000,
     },
-},{timeseries: true});
+},{timestamps: true});
 
 const ContactModel = mongoose.model("Contact", contactSchema);
 
