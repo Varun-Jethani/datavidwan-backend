@@ -8,6 +8,9 @@ import { deleteFromCloudinary, uploadToCloudinary } from "../utils/cloudinary.js
 import { ApiResponse } from "../utils/apiresponse.js";
 import ContactModel from "../models/contact.model.js";
 import ConsultModel from "../models/consult.model.js";
+import blogModel from "../models/blog.model.js";
+import userModel from "../models/user.model.js";
+import testimonialModel from "../models/testimonial.model.js";
 
 const  getAllServices = asyncHandler(async (req, res) => {
     try {
@@ -315,13 +318,19 @@ const getStats = asyncHandler(async (req, res) => {
         const totalImages = await galleryModel.countDocuments();
         const totalContacts = await ContactModel.countDocuments();
         const totalConsults = await ConsultModel.countDocuments();
+        const totalBlogs = await blogModel.countDocuments();
+        const totalUsers = await userModel.countDocuments();
+        const totalTestimonials = await testimonialModel.countDocuments();
 
         return res.status(200).json(new ApiResponse(true, "Stats fetched successfully", {
             totalServices,
             totalCourses,
             totalImages,
             totalContacts,
-            totalConsults
+            totalConsults,
+            totalBlogs,
+            totalUsers,
+            totalTestimonials
         }));
     } catch (error) {
         throw new ApiError(500, error?.message || "Unable to fetch stats");
