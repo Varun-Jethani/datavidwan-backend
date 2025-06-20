@@ -10,7 +10,7 @@ import ContactModel from "../models/contact.model.js";
 import ConsultModel from "../models/consult.model.js";
 import blogModel from "../models/blog.model.js";
 import userModel from "../models/user.model.js";
-import testimonialModel from "../models/testimonial.model.js";
+import testimonialModel from "../models/testimonials.model.js";
 
 const  getAllServices = asyncHandler(async (req, res) => {
     try {
