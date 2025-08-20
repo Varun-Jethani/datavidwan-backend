@@ -1,4 +1,5 @@
 import testimonialModel from "../models/testimonials.model.js";
+import teamModel from "../models/team.model.js";
 import asyncHandler from "../utils/asynchandler.js";
 import { ApiResponse } from "../utils/apiresponse.js";
 import { uploadToCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
@@ -77,9 +78,79 @@ const deleteTestimonial = asyncHandler(async (req, res) => {
 }
 );
 
+const addTeamMember = asyncHandler(async (req, res) => {
+    const { name, designation, about } = req.body;
+
+    if (!name || !designation || !about) {
+        throw new ApiError(400, "Please fill all the fields");
+    }
+
+    let image;
+    if (req.file) {
+        image = await uploadToCloudinary(req.file.path, "image");
+    }
+
+    const newTeamMember = await teamModel.create({
+        name,
+        designation,
+        about,
+        image: image?.url
+    });
+
+    return res.status(201).json(new ApiResponse(true, "Team member added successfully", newTeamMember));
+});
+
+const updateTeamMember = asyncHandler(async (req, res) => {
+    const { teamMemberId } = req.params;
+    const { name, designation, about } = req.body;
+    if (!name || !designation || !about) {
+        throw new ApiError(400, "Please fill all the fields");
+    }
+    const teamMember = await teamModel.findById(teamMemberId);
+    if (!teamMember) {
+        throw new ApiError(404, "Team member not found");
+    }
+    let image;
+    if (req.file) {
+        image = await uploadToCloudinary(req.file.path, "image");
+        await deleteFromCloudinary(teamMember.image);
+    }
+    teamMember.name = name;
+    teamMember.designation = designation;
+    teamMember.about = about;
+    teamMember.image = image?.url || teamMember.image;
+    await teamMember.save();
+    return res.status(200).json(new ApiResponse(true, "Team member updated successfully", teamMember));
+});
+
+const deleteTeamMember = asyncHandler(async (req, res) => {
+    const { teamMemberId } = req.params;
+    const teamMember = await teamModel.findById(teamMemberId);
+    if (!teamMember) {
+        throw new ApiError(404, "Team member not found");
+    }
+    await deleteFromCloudinary(teamMember.image);
+    await teamModel.findByIdAndDelete(teamMemberId);
+    return res.status(200).json(new ApiResponse(true, "Team member deleted successfully"));
+});
+
+const getAllTeamMembers = asyncHandler(async (req, res) => {
+    const teamMembers = await teamModel.find();
+    if (!teamMembers) {
+        throw new ApiError(404, "No team members found");
+    }
+    return res.status(200).json(new ApiResponse(true, "Team members retrieved successfully", teamMembers));
+
+});
+
+
 export {
     addTestimonial,
     updateTestimonial,
     deleteTestimonial,
-    getAllTestimonials
+    getAllTestimonials,
+    addTeamMember,
+    updateTeamMember,
+    deleteTeamMember,
+    getAllTeamMembers
 };
