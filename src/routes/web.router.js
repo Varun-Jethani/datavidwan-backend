@@ -23,13 +23,19 @@ import { upload } from "../middlewares/multer.middleware.js";
 
 const webRouter = Router();
 
+const uploadFields = upload.fields([
+  { name: "coverImage", maxCount: 1 },
+  { name: "brochure", maxCount: 1 },
+]);
+
+
 webRouter.route("/services").get(getAllServices)
 webRouter.route("/courses").get(getAllCourses)
 webRouter.route("/images").get(getAllImages)
 webRouter.use(verifyAdminJWT);
 webRouter.route("/services").post(addService).put(updateService)
 webRouter.route("/service/:id").delete(deleteService);
-webRouter.route("/courses").post(upload.single("coverImage"), upload.single("brochure"), addCourse).put(upload.single("coverImage"), upload.single("brochure"), updateCourse)
+webRouter.route("/courses").post(uploadFields, addCourse).put(uploadFields, updateCourse)
 webRouter.route("/course/:id").delete(deleteCourse);
 webRouter.route("/images").post(upload.array("images",10), addImages).put(updateImages)
 webRouter.route("/image/:id").delete(deleteImages);

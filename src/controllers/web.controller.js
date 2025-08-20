@@ -105,8 +105,8 @@ const addCourse = asyncHandler(async (req, res) => {
             tools,
             modules,
             order,
-            coverImage: coverImage ? uploadedImage.url : null,
-            brochure: brochure ? uploadedBrochure.url : null,
+            coverImage: uploadedImage ? uploadedImage.url : null,
+            brochure: uploadedBrochure ? uploadedBrochure.url : null,
             admin
         });
         return res.status(201).json(new ApiResponse(true, "Course created successfully", newCourse));
