@@ -71,7 +71,24 @@ const addService = asyncHandler(async (req, res) => {
 
 const addCourse = asyncHandler(async (req, res) => {
     try {
+    if (req.body.deliverables) {
+        req.body.deliverables = JSON.parse(req.body.deliverables);
+    }
+    if (req.body.tools) {
+        req.body.tools = JSON.parse(req.body.tools);
+    }
+    if (req.body.modules) {
+        req.body.modules = JSON.parse(req.body.modules);
+    }
+    } catch (err) {
+    return res.status(400).json({
+        success: false,
+        message: "Invalid JSON in deliverables/tools/modules",
+    });
+    }
+    try {
         const {title, description, price, mode, duration, deliverables, tools, modules, heading} = req.body;
+
         if (!title || !description || !price || !mode || !duration || !deliverables || !tools || !modules || !heading) {
             throw new ApiError(400, "Please fill all the fields");
         }
