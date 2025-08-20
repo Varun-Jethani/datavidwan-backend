@@ -14,7 +14,7 @@ import testimonialModel from "../models/testimonials.model.js";
 
 const  getAllServices = asyncHandler(async (req, res) => {
     try {
-        const services = await serviceModel.find();
+        const services = await serviceModel.find().sort({ order: -1 });
         return res.status(200).json(new ApiResponse(true, "All Services", services));
     } catch (error) {
         throw new ApiError(500, error?.message || "Unable to fetch services");
@@ -23,7 +23,7 @@ const  getAllServices = asyncHandler(async (req, res) => {
 
 const  getAllCourses = asyncHandler(async (req, res) => {
     try {
-        const courses = await courseModel.find();
+        const courses = await courseModel.find().sort({ order: -1 });
         return res.status(200).json(new ApiResponse(true, "All Courses", courses));
     } catch (error) {
         throw new ApiError(500, error?.message || "Unable to fetch courses");
@@ -80,11 +80,16 @@ const addCourse = asyncHandler(async (req, res) => {
             throw new ApiError(401, "Unauthorized request here");
         }
         const coverImage = req.files?.coverImage[0]?.path;
+        const brochure = req.files?.brochure[0]?.path;
 
         let uploadedImage = null;
+        let uploadedBrochure = null;
 
         if (coverImage){
             uploadedImage = await uploadToCloudinary(coverImage);
+        }
+        if (brochure){
+            uploadedBrochure = await uploadToCloudinary(brochure);
         }
         //order
         const lastCourse = await courseModel.findOne().sort({ order: -1 });
@@ -101,6 +106,7 @@ const addCourse = asyncHandler(async (req, res) => {
             modules,
             order,
             coverImage: coverImage ? uploadedImage.url : null,
+            brochure: brochure ? uploadedBrochure.url : null,
             admin
         });
         return res.status(201).json(new ApiResponse(true, "Course created successfully", newCourse));
@@ -182,17 +188,27 @@ const updateCourse = asyncHandler(async (req, res) => {
             const uploadedImage = await uploadToCloudinary(coverImage);
             req.body.coverImage = uploadedImage.url;
         }
+        if (req.files?.brochure) {
+            const brochure = req.files.brochure[0].path;
+            const uploadedBrochure = await uploadToCloudinary(brochure);
+            req.body.brochure = uploadedBrochure.url;
+        }
         const course = await courseModel.findById(id);
         if (!course) {
             throw new ApiError(404, "Course not found");
         }
-        if (course.coverImage) {
+        if (course.coverImage && req.body.coverImage) {
             await deleteFromCloudinary(course.coverImage);
         }
+        if (course.brochure && req.body.brochure) {
+            await deleteFromCloudinary(course.brochure);
+        }
         const coverImage = req.body.coverImage || course.coverImage;
+        const brochure = req.body.brochure || course.brochure;
+
         const updatedCourse = await courseModel.findByIdAndUpdate(
             id,
-            { title, heading, description, price, mode, duration, deliverables, tools, modules, coverImage },
+            { title, heading, description, price, mode, duration, deliverables, tools, modules, coverImage, brochure },
             { new: true }
         );
         if (!updatedCourse) {
@@ -243,6 +259,12 @@ const deleteCourse = asyncHandler(async (req, res) => {
         const deletedCourse = await courseModel.findByIdAndDelete(id);
         if (!deletedCourse) {
             throw new ApiError(404, "Course not found");
+        }
+        if (deletedCourse.coverImage) {
+            await deleteFromCloudinary(deletedCourse.coverImage);
+        }
+        if (deletedCourse.brochure) {
+            await deleteFromCloudinary(deletedCourse.brochure);
         }
         return res.status(200).json(new ApiResponse(true, "Course deleted successfully", deletedCourse));
     } catch (error) {

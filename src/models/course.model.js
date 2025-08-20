@@ -48,6 +48,9 @@ const courseSchema = new mongoose.Schema(
     coverImage: {
       type: String,
     },
+    brochure: {
+      type: String,
+    },
     order:{
       type: Number,
       required: true,
