@@ -195,6 +195,22 @@ const updateService = asyncHandler(async (req, res) => {
 })
 
 const updateCourse = asyncHandler(async (req, res) => {
+    try{
+        if (req.body.deliverables) {
+        req.body.deliverables = JSON.parse(req.body.deliverables);
+    }
+    if (req.body.tools) {
+        req.body.tools = JSON.parse(req.body.tools);
+    }
+    if (req.body.modules) {
+        req.body.modules = JSON.parse(req.body.modules);
+    }
+    } catch (err) {
+    return res.status(400).json({
+        success: false,
+        message: "Invalid JSON in deliverables/tools/modules",
+    });
+    }
     try {
         const { id, title, description, price, mode, duration, deliverables, tools, modules, heading } = req.body;
         if (!title || !description || !price || !mode || !duration || !deliverables || !tools || !modules || !heading) {
