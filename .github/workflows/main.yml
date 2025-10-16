@@ -1,0 +1,83 @@
+name: Deploy to AWS Lambda
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 1) Delete src/index.js (you already have root index.js)
+      - name: Delete src/index.js
+        run: rm -f src/index.js || true
+
+      # 2) Skip code transform (already serverless-ready)
+
+      # 3) Remove dotenv usage everywhere (safe: only source files, not package.json)
+      - name: Remove dotenv
+        run: |
+          set -e
+          files=$(grep -Ilr \
+            --include="*.js" \
+            --include="*.ts" \
+            --include="*.mjs" \
+            --include="*.cjs" \
+            -e "dotenv" src . || true)
+          if [ -n "$files" ]; then
+            echo "$files" | while read -r f; do
+              # remove any line mentioning dotenv
+              sed -i '/dotenv/d' "$f"
+            done
+          fi
+
+       # 4) Update multer temp path to /tmp/
+      - name: Patch multer temp path
+        run: |
+          if [ -f src/middlewares/multer.middleware.js ]; then
+            # replace './public/temp' and 'public/temp' with '/tmp/'
+            sed -i "s|['\"]\./public/temp['\"]|\"/tmp/\"|g" src/middlewares/multer.middleware.js
+            sed -i "s|['\"]public/temp['\"]|\"/tmp/\"|g" src/middlewares/multer.middleware.js
+          fi
+
+
+      # 5) Install deps (node_modules included in ZIP)
+      - name: Install production dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --omit=dev
+          else
+            npm install --omit=dev
+          fi
+
+      # 6) Create ZIP (includes node_modules, excludes CI metadata)
+      - name: Zip for Lambda
+        run: |
+          zip -rq deployment.zip . \
+            -x ".git/*" ".github/*" "public/*" "**/.DS_Store"
+
+      # 7) Deploy ZIP to Lambda
+      - name: Deploy to AWS Lambda
+        uses: appleboy/lambda-action@v0.2.0
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ap-south-1   # change if needed
+          function_name: DataVidwanAPI  # change this
+          zip_file: deployment.zip
+
+      # 8) keep a downloadable artifact of the ZIP
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-deployment
+          path: deployment.zip
