@@ -38,7 +38,7 @@ app.use("/about", aboutRouter)
 app.use("/contactus", contactRouter);
 app.use("/consult", consultRouter);
 app.use("/", (req, res) => {
-  res.json("Hell");
+  res.json("Hello");
 });
 
 export default app;
