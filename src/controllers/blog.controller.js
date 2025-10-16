@@ -54,6 +54,7 @@ const getApprovedBlogPosts = asyncHandler(async (req, res) => { // Fetch all blo
                     title: 1,
                     exerpt: 1,
                     category: 1,
+                    content: 1,
                     images: 1,
                     createdAt: 1,
                     writer: 1
