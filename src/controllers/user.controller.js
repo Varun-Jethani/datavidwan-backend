@@ -6,6 +6,16 @@ import userModel from "../models/user.model.js";
 import sendEmail from "../utils/Emailer.js";
 import UserOTPSchema from "../models/userOTP.model.js";
 
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+const validatePassword = (password) => {
+  const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+  return passwordStrengthRegex.test(password);
+}
+
 // Register User
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
@@ -20,6 +30,19 @@ const registerUser = asyncHandler(async (req, res) => {
       message: "User already exists",
     });
   }
+  if (!validateEmail(email)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid email format",
+    });
+  }
+  if (!validatePassword(password)) {
+    return res.status(400).json({
+      success: false,
+      message: "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number",
+    });
+  }
+
   const newUser = await userModel.create({
     name,
     email,
@@ -34,17 +57,16 @@ const registerUser = asyncHandler(async (req, res) => {
       message: "Failed to create user",
     });
   }
-  createEmailOTP(newUser._id, email)
-    .then(() => {
-      console.log("OTP sent to email");
-    })
-    .catch((error) => {
+  try{
+  await createEmailOTP(newUser._id, email)
+  console.log("OTP sent to email for verification");
+  }catch(error) {
       console.error("Error sending OTP:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to send OTP",
       });
-    });
+    }
 
   return res
     .status(201)
@@ -105,7 +127,7 @@ const createEmailOTP = async (userId, email) => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6-digit OTP
   await UserOTPSchema.create({ userId, otp });
 
-  sendEmail({
+  await sendEmail({
     to: email,
     subject: "Email Verification OTP",
     text: `Your OTP for email verification is ${otp}. It is valid for 5 minutes.`,
@@ -122,6 +144,14 @@ const sendOTPAgain = asyncHandler(async (req, res) => {
       message: "Please provide your email",
     });
   }
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid email format",
+    });
+  }
+
   const user = await userModel.findOne({ email });
   if (!user) {
     return res.status(404).json({
@@ -129,21 +159,25 @@ const sendOTPAgain = asyncHandler(async (req, res) => {
       message: "User not found",
     });
   }
-  createEmailOTP(user._id, email)
-    .then(() => {
-      return res.status(200).json({
-        success: true,
-        message: "OTP sent to email",
-      });
-    })
-    .catch((error) => {
+  try{
+  await createEmailOTP(user._id, email)
+  console.log("OTP sent to email for verification");
+  }
+  catch(error) {
       console.error("Error sending OTP:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to send OTP",
       });
-    });
+    }
+
+
+  return res.status(200).json({
+    success: true,
+    message: "OTP sent to email",
+  });
 });
+
 
 // Login User
 const loginUser = asyncHandler(async (req, res) => {
@@ -152,9 +186,17 @@ const loginUser = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Please fill all the fields");
   }
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid email format",
+    });
+  }
+
   const userDoc = await userModel.findOne({ email });
   if (userDoc && !userDoc.verified) {
-    createEmailOTP(userDoc._id, userDoc.email)
+    await createEmailOTP(userDoc._id, userDoc.email)
       .then(() => {
         return res.status(300).json({
           success: false,
