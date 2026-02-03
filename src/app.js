@@ -7,10 +7,16 @@ dotenv.config();
 
 const app = express();
 const corsOptions = {
-  origin: ["http://localhost:5173","http://localhost:5174","http://localhost:3000",process.env.FRONTEND_URL, process.env.ADMIN_URL],
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:3000",
+    process.env.FRONTEND_URL,
+    process.env.ADMIN_URL,
+  ],
   optionsSuccessStatus: 200,
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
 };
 
 app.use(cors(corsOptions));
@@ -31,10 +37,10 @@ import contactRouter from "./routes/contact.routes.js";
 import consultRouter from "./routes/consult.route.js";
 app.use("/user", userRouter);
 app.use("/admin", adminRouter);
-app.use("/web",webRouter);
+app.use("/web", webRouter);
 app.use("/blog", blogRouter);
 app.use("/comment", CommentRouter);
-app.use("/about", aboutRouter)
+app.use("/about", aboutRouter);
 app.use("/contactus", contactRouter);
 app.use("/consult", consultRouter);
 app.use("/", (req, res) => {
