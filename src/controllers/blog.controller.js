@@ -19,6 +19,7 @@ const createBlogPost = asyncHandler(async (req, res) => {
       .json(new ApiResponse(false, "Please fill all the fields"));
   }
 
+  // multer.fields() => req.files = { images: [], pdf: [] }
   const imageFiles = req.files?.images || [];
   const pdfFile = req.files?.pdf?.[0];
 
@@ -83,6 +84,7 @@ const getApprovedBlogPosts = asyncHandler(async (req, res) => {
           images: 1,
           pdf: 1,
           createdAt: 1,
+          updatedAt: 1, // ✅ admin panel/date use case
           writer: 1,
         },
       },
@@ -94,7 +96,7 @@ const getApprovedBlogPosts = asyncHandler(async (req, res) => {
     },
   );
 
-  if (!blogs || blogs.docs.length === 0) {
+  if (!blogs || !blogs.docs || blogs.docs.length === 0) {
     return res
       .status(404)
       .json(new ApiResponse(false, "No approved blog posts found"));
@@ -136,7 +138,6 @@ const approveBlogPost = asyncHandler(async (req, res) => {
   blogPost.approvedBy = req.admin._id;
   blogPost.status = 1;
   blogPost.rejectionReason = "";
-
   await blogPost.save();
 
   return res
@@ -165,14 +166,24 @@ const deleteBlogPost = asyncHandler(async (req, res) => {
       );
   }
 
-  // Delete images
-  for (const image of blogPost.images) {
-    await deleteFromCloudinary(image);
+  // Delete images (safe)
+  const imgs = Array.isArray(blogPost.images) ? blogPost.images : [];
+  for (const image of imgs) {
+    try {
+      await deleteFromCloudinary(image);
+    } catch (e) {
+      // keep deleting others even if one fails
+      console.error("Cloudinary image delete failed:", e?.message || e);
+    }
   }
 
-  // Delete PDF
+  // Delete PDF (safe)
   if (blogPost.pdf) {
-    await deleteFromCloudinary(blogPost.pdf, "raw");
+    try {
+      await deleteFromCloudinary(blogPost.pdf, "raw");
+    } catch (e) {
+      console.error("Cloudinary pdf delete failed:", e?.message || e);
+    }
   }
 
   await blogModel.findByIdAndDelete(req.params.id);
@@ -209,7 +220,6 @@ const getUserBlogPosts = asyncHandler(async (req, res) => {
 ================================ */
 const getAllBlogPosts = asyncHandler(async (req, res) => {
   const blogPosts = await blogModel.find().populate("userid", "name");
-
   return res
     .status(200)
     .json(new ApiResponse(true, "All Blog Posts", blogPosts));
@@ -244,7 +254,11 @@ const updateBlogPost = asyncHandler(async (req, res) => {
   const pdfFile = req.files?.pdf?.[0];
   if (pdfFile) {
     if (blogPost.pdf) {
-      await deleteFromCloudinary(blogPost.pdf, "raw");
+      try {
+        await deleteFromCloudinary(blogPost.pdf, "raw");
+      } catch (e) {
+        console.error("Old pdf delete failed:", e?.message || e);
+      }
     }
 
     const uploadedPdf = await uploadToCloudinary(
