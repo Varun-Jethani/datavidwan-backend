@@ -12,7 +12,9 @@ import commentModel from "../models/comment.model.js";
 ================================ */
 const createBlogPost = asyncHandler(async (req, res) => {
   const { title, category, exerpt } = req.body;
-
+  console.log("REQ.BODY:", req.body);
+  console.log("REQ.FILES:", req.files);
+  console.log("REQ.USER:", req.user);
   if (!title || !category || !exerpt) {
     return res
       .status(400)
