@@ -12,16 +12,12 @@ import commentModel from "../models/comment.model.js";
 ================================ */
 const createBlogPost = asyncHandler(async (req, res) => {
   const { title, category, exerpt } = req.body;
-  console.log("REQ.BODY:", req.body);
-  console.log("REQ.FILES:", req.files);
-  console.log("REQ.USER:", req.user);
   if (!title || !category || !exerpt) {
     return res
       .status(400)
       .json(new ApiResponse(false, "Please fill all the fields"));
   }
 
-  // multer.fields() => req.files = { images: [], pdf: [] }
   const imageFiles = req.files?.images || [];
   const pdfFile = req.files?.pdf?.[0];
 
@@ -29,16 +25,20 @@ const createBlogPost = asyncHandler(async (req, res) => {
     return res.status(400).json(new ApiResponse(false, "PDF file is required"));
   }
 
-  // Upload images
+  // ✅ IMAGES
   const images = [];
   for (const file of imageFiles) {
     const uploadedImage = await uploadToCloudinary(file.path, "image");
-    images.push(uploadedImage.url);
+    if (uploadedImage?.url) images.push(uploadedImage.url);
   }
 
-  // Upload PDF (raw)
+  // ✅ PDF (RAW ONLY)
   const uploadedPdf = await uploadToCloudinary(pdfFile.path, "raw");
-  console.log("PDF URL:", uploadedPdf.url);
+
+  if (!uploadedPdf?.url) {
+    return res.status(500).json(new ApiResponse(false, "PDF upload failed"));
+  }
+
   const blogPost = await blogModel.create({
     title,
     exerpt,
