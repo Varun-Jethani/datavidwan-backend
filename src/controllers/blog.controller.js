@@ -98,12 +98,6 @@ const getApprovedBlogPosts = asyncHandler(async (req, res) => {
     },
   );
 
-  if (!blogs || !blogs.docs || blogs.docs.length === 0) {
-    return res
-      .status(404)
-      .json(new ApiResponse(false, "No approved blog posts found"));
-  }
-
   return res
     .status(200)
     .json(new ApiResponse(true, "Approved Blog Posts", blogs));
