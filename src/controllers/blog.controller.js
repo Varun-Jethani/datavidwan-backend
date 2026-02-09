@@ -37,8 +37,7 @@ const createBlogPost = asyncHandler(async (req, res) => {
   }
 
   // Upload PDF (raw)
-  const uploadedPdf = await uploadToCloudinary(pdfFile.path, "blog-pdf", "raw");
-  blog.pdf = uploadedPdf.url;
+  const uploadedPdf = await uploadToCloudinary(pdfFile.path, "raw");
 
   const blogPost = await blogModel.create({
     title,
