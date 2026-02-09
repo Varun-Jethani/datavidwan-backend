@@ -32,7 +32,7 @@ const createBlogPost = asyncHandler(async (req, res) => {
   // Upload images
   const images = [];
   for (const file of imageFiles) {
-    const uploadedImage = await uploadToCloudinary(file.path, "blog-images");
+    const uploadedImage = await uploadToCloudinary(file.path, "image");
     images.push(uploadedImage.url);
   }
 
