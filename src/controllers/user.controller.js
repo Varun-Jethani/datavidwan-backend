@@ -9,12 +9,13 @@ import UserOTPSchema from "../models/userOTP.model.js";
 const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
-}
+};
 
 const validatePassword = (password) => {
-  const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+  const passwordStrengthRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
   return passwordStrengthRegex.test(password);
-}
+};
 
 // Register User
 const registerUser = asyncHandler(async (req, res) => {
@@ -39,7 +40,8 @@ const registerUser = asyncHandler(async (req, res) => {
   if (!validatePassword(password)) {
     return res.status(400).json({
       success: false,
-      message: "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number",
+      message:
+        "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number",
     });
   }
 
@@ -48,25 +50,23 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password: bcrypt.hashSync(password, 10),
   });
-  const createdUser = await userModel
-    .findById(newUser._id)
-    .select("-password");
+  const createdUser = await userModel.findById(newUser._id).select("-password");
   if (!createdUser) {
     return res.status(500).json({
       success: false,
       message: "Failed to create user",
     });
   }
-  try{
-  await createEmailOTP(newUser._id, email)
-  console.log("OTP sent to email for verification");
-  }catch(error) {
-      console.error("Error sending OTP:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to send OTP",
-      });
-    }
+  try {
+    await createEmailOTP(newUser._id, email);
+    console.log("OTP sent to email for verification");
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send OTP",
+    });
+  }
 
   return res
     .status(201)
@@ -98,26 +98,27 @@ const verifyEmailOTP = asyncHandler(async (req, res) => {
     });
   }
 
-  const userDoc = await userModel.findByIdAndUpdate(userOTP.userId, { verified: true });
+  const userDoc = await userModel.findByIdAndUpdate(userOTP.userId, {
+    verified: true,
+  });
   await UserOTPSchema.deleteMany({ userId: userOTP.userId }); // Remove OTP after verification
 
- jwt.sign(
-        { email: userDoc.email, id: userDoc._id, name: userDoc.name },
-        process.env.JWT_SECRET,
-        { expiresIn: "1d" },
-        (err, token) => {
-          if (err) throw err;
-          res
-            .cookie("token", token, {
-              httpOnly: false,
-              secure: process.env.NODE_ENV === "production", // Set secure to true in production
-              sameSite: "None", // Required for cross-site cookies
-            })
-            .json({ token, user: userDoc, message:"OTP verified Successfully" }); // Include token in response
-        }
-      );
-
- 
+  jwt.sign(
+    { email: userDoc.email, id: userDoc._id, name: userDoc.name },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" },
+    (err, token) => {
+      if (err) throw err;
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          secure: true, // Set secure to true in production
+          sameSite: "None", // Required for cross-site cookies
+          maxAge: 24 * 60 * 60 * 1000, // 1 day
+        })
+        .json({ token, user: userDoc, message: "OTP verified Successfully" }); // Include token in response
+    },
+  );
 });
 
 //create OTP for email verification normal function
@@ -159,25 +160,22 @@ const sendOTPAgain = asyncHandler(async (req, res) => {
       message: "User not found",
     });
   }
-  try{
-  await createEmailOTP(user._id, email)
-  console.log("OTP sent to email for verification");
+  try {
+    await createEmailOTP(user._id, email);
+    console.log("OTP sent to email for verification");
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send OTP",
+    });
   }
-  catch(error) {
-      console.error("Error sending OTP:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to send OTP",
-      });
-    }
-
 
   return res.status(200).json({
     success: true,
     message: "OTP sent to email",
   });
 });
-
 
 // Login User
 const loginUser = asyncHandler(async (req, res) => {
@@ -210,9 +208,7 @@ const loginUser = asyncHandler(async (req, res) => {
           message: "Failed to send OTP for email verification",
         });
       });
-  }
-
-  else if (userDoc) {
+  } else if (userDoc) {
     const pass = bcrypt.compareSync(password, userDoc.password);
     if (pass) {
       jwt.sign(
@@ -223,12 +219,13 @@ const loginUser = asyncHandler(async (req, res) => {
           if (err) throw err;
           res
             .cookie("token", token, {
-              httpOnly: false,
-              secure: process.env.NODE_ENV === "production", // Set secure to true in production
+              httpOnly: true,
+              secure: true, // Set secure to true in production
               sameSite: "None", // Required for cross-site cookies
+              maxAge: 24 * 60 * 60 * 1000, // 1 day
             })
             .json({ token, user: userDoc }); // Include token in response
-        }
+        },
       );
     } else {
       return res.status(400).json({
@@ -241,21 +238,18 @@ const loginUser = asyncHandler(async (req, res) => {
 
 // Logout User
 const logoutUser = asyncHandler(async (req, res) => {
-  res
-    .clearCookie("token", {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
-    })
-    .json({
-      message: "Logged out successfully",
-    });
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+  });
+  res.json({ message: "Logged out successfully" });
 });
 
 // User Profile
 const userProfile = asyncHandler(async (req, res) => {
   try {
-    const user=req.user
+    const user = req.user;
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -306,4 +300,12 @@ const validateToken = asyncHandler(async (req, res) => {
   });
 });
 
-export { logoutUser, loginUser, userProfile, registerUser, validateToken, verifyEmailOTP, sendOTPAgain };
+export {
+  logoutUser,
+  loginUser,
+  userProfile,
+  registerUser,
+  validateToken,
+  verifyEmailOTP,
+  sendOTPAgain,
+};
