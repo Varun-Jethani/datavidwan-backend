@@ -114,6 +114,7 @@ const verifyEmailOTP = asyncHandler(async (req, res) => {
           httpOnly: true,
           secure: true, // Set secure to true in production
           sameSite: "None", // Required for cross-site cookies
+          domain: ".datavidwan.com",
           maxAge: 24 * 60 * 60 * 1000, // 1 day
         })
         .json({ token, user: userDoc, message: "OTP verified Successfully" }); // Include token in response
