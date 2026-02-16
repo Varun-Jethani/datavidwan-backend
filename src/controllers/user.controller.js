@@ -114,7 +114,6 @@ const verifyEmailOTP = asyncHandler(async (req, res) => {
           httpOnly: true,
           secure: true, // Set secure to true in production
           sameSite: "None", // Required for cross-site cookies
-          domain: ".datavidwan.com",
           path: "/", // Ensure cookie is sent for all routes
           maxAge: 24 * 60 * 60 * 1000, // 1 day
         })
@@ -224,7 +223,6 @@ const loginUser = asyncHandler(async (req, res) => {
               httpOnly: true,
               secure: true, // Set secure to true in production
               sameSite: "None", // Required for cross-site cookies
-              domain: ".datavidwan.com",
               path: "/", // Ensure cookie is sent for all
               maxAge: 24 * 60 * 60 * 1000, // 1 day
             })
