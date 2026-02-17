@@ -13,6 +13,7 @@ const corsOptions = {
     "http://localhost:3000",
     "https://datavidwan.com",
     "https://www.datavidwan.com",
+    "https://admin.datavidwan.com",
   ],
   optionsSuccessStatus: 200,
   credentials: true,

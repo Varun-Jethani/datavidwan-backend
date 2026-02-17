@@ -58,9 +58,10 @@ const loginAdmin = asyncHandler(async (req, res) => {
 
   res.cookie("token", token, {
     httpOnly: true, // 🔐 IMPORTANT
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
     maxAge: 24 * 60 * 60 * 1000,
+    domain: ".datavidwan.com",
   });
 
   return res.status(200).json(
@@ -78,8 +79,9 @@ const loginAdmin = asyncHandler(async (req, res) => {
 const logoutAdmin = asyncHandler(async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
+    domain: ".datavidwan.com",
   });
 
   return res.status(200).json(new ApiResponse(true, "Logout successful"));
