@@ -56,7 +56,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
     { expiresIn: "1d" },
   );
 
-  res.cookie("token", token, {
+  res.cookie("adminToken", token, {
     httpOnly: true, // 🔐 IMPORTANT
     secure: true,
     sameSite: "none",
@@ -77,7 +77,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
 
 /* ================= LOGOUT (JWT FREE) ================= */
 const logoutAdmin = asyncHandler(async (req, res) => {
-  res.clearCookie("token", {
+  res.clearCookie("adminToken", {
     httpOnly: true,
     secure: true,
     sameSite: "none",

@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { ApiError } from "../utils/ApiError.js";
 
 export const verifyJWT = asyncHandler(async (req, _, next) => {
-  const token = req.cookies?.token;
+  const token = req.cookies?.userToken;
 
   if (!token) {
     throw new ApiError(401, "Not authorized. No token found.");

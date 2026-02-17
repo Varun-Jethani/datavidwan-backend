@@ -110,7 +110,7 @@ const verifyEmailOTP = asyncHandler(async (req, res) => {
     (err, token) => {
       if (err) throw err;
       res
-        .cookie("token", token, {
+        .cookie("userToken", token, {
           httpOnly: true,
           secure: true, // Set secure to true in production
           sameSite: "None", // Required for cross-site cookies
@@ -219,7 +219,7 @@ const loginUser = asyncHandler(async (req, res) => {
         (err, token) => {
           if (err) throw err;
           res
-            .cookie("token", token, {
+            .cookie("userToken", token, {
               httpOnly: true,
               secure: true, // Set secure to true in production
               sameSite: "None", // Required for cross-site cookies

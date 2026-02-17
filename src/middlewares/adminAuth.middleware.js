@@ -6,7 +6,7 @@ import { ApiError } from "../utils/ApiError.js";
 export const verifyAdminJWT = asyncHandler(async (req, _, next) => {
   try {
     const token =
-      req.cookies?.token ||
+      req.cookies?.adminToken ||
       req.headers["authorization"]?.replace("Bearer ", "") ||
       req.headers["Authorization"]?.replace("Bearer ", "");
     if (!token) {
