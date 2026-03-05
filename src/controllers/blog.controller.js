@@ -11,8 +11,8 @@ import commentModel from "../models/comment.model.js";
    CREATE BLOG POST (PDF + IMAGES)
 ================================ */
 const createBlogPost = asyncHandler(async (req, res) => {
-  const { title, category, exerpt } = req.body;
-  if (!title || !category || !exerpt) {
+  const { title, category, excerpt } = req.body;
+  if (!title || !category || !excerpt) {
     return res
       .status(400)
       .json(new ApiResponse(false, "Please fill all the fields"));
@@ -41,7 +41,7 @@ const createBlogPost = asyncHandler(async (req, res) => {
 
   const blogPost = await blogModel.create({
     title,
-    exerpt,
+    excerpt,
     category,
     images,
     pdf: uploadedPdf.url,
@@ -81,7 +81,7 @@ const getApprovedBlogPosts = asyncHandler(async (req, res) => {
         $project: {
           _id: 1,
           title: 1,
-          exerpt: 1,
+          excerpt: 1,
           category: 1,
           images: 1,
           pdf: 1,
@@ -225,9 +225,9 @@ const getAllBlogPosts = asyncHandler(async (req, res) => {
    UPDATE BLOG (PDF REPLACE)
 ================================ */
 const updateBlogPost = asyncHandler(async (req, res) => {
-  const { title, category, exerpt } = req.body;
+  const { title, category, excerpt } = req.body;
 
-  if (!title || !category || !exerpt) {
+  if (!title || !category || !excerpt) {
     return res
       .status(400)
       .json(new ApiResponse(false, "Please fill all the fields"));
@@ -240,7 +240,7 @@ const updateBlogPost = asyncHandler(async (req, res) => {
 
   blogPost.title = title;
   blogPost.category = category;
-  blogPost.exerpt = exerpt;
+  blogPost.excerpt = excerpt;
   blogPost.approved = false;
   blogPost.approvedBy = null;
   blogPost.status = 0;
