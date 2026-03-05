@@ -35,6 +35,9 @@ blogRouter
     createBlogPost,
   );
 
+// ✅ PUBLIC BLOG DETAIL
+blogRouter.route("/:id").get(getBlogPostById);
+
 // Get logged-in user's blogs
 blogRouter.route("/user").get(verifyJWT, getUserBlogPosts);
 
