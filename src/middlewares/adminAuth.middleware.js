@@ -5,6 +5,8 @@ import { ApiError } from "../utils/ApiError.js";
 
 export const verifyAdminJWT = asyncHandler(async (req, _, next) => {
   try {
+    console.log("Cookies received:", req.cookies); // 👈 ADD THIS
+
     const token =
       req.cookies?.adminToken ||
       req.headers["authorization"]?.replace("Bearer ", "") ||
