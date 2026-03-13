@@ -37,9 +37,6 @@ blogRouter
     createBlogPost,
   );
 
-// ✅ PUBLIC BLOG DETAIL
-blogRouter.route("/:id").get(getBlogPostById);
-
 // Get logged-in user's blogs
 blogRouter.route("/user").get(verifyJWT, getUserBlogPosts);
 
@@ -49,7 +46,7 @@ blogRouter
   .get(getBlogPostById)
   .delete(verifyJWT, deleteBlogPost);
 
-// Update blog (PDF replace allowed)
+// Update blog
 blogRouter.route("/update/:id").put(
   verifyJWT,
   upload.fields([
@@ -59,17 +56,20 @@ blogRouter.route("/update/:id").put(
   updateBlogPost,
 );
 
-blogRouter.route("/admin/approved").get(verifyAdminJWT, getApprovedAdminBlogs);
-
-blogRouter.route("/admin/pending").get(verifyAdminJWT, getPendingAdminBlogs);
 /* ================================
    ADMIN ROUTES
 ================================ */
 
-// Get all blogs (admin)
+// Approved blogs
+blogRouter.route("/admin/approved").get(verifyAdminJWT, getApprovedAdminBlogs);
+
+// Pending blogs
+blogRouter.route("/admin/pending").get(verifyAdminJWT, getPendingAdminBlogs);
+
+// All blogs
 blogRouter.route("/admin").get(verifyAdminJWT, getAllBlogPosts);
 
-// Approve / delete blog (admin)
+// Approve / delete
 blogRouter
   .route("/admin/:id")
   .put(verifyAdminJWT, approveBlogPost)
@@ -77,5 +77,11 @@ blogRouter
 
 // Reject blog
 blogRouter.route("/reject/:id").put(verifyAdminJWT, rejectBlogPost);
+
+/* ================================
+   BLOG DETAIL (ALWAYS LAST)
+================================ */
+
+blogRouter.route("/:id").get(getBlogPostById);
 
 export default blogRouter;
