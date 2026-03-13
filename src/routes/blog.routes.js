@@ -10,6 +10,8 @@ import {
   getApprovedBlogPosts,
   updateBlogPost,
   rejectBlogPost,
+  getApprovedAdminBlogs,
+  getPendingAdminBlogs,
 } from "../controllers/blog.controller.js";
 
 import { verifyAdminJWT } from "../middlewares/adminAuth.middleware.js";
