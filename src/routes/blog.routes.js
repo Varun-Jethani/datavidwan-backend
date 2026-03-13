@@ -57,6 +57,9 @@ blogRouter.route("/update/:id").put(
   updateBlogPost,
 );
 
+blogRouter.route("/admin/approved").get(verifyAdminJWT, getApprovedAdminBlogs);
+
+blogRouter.route("/admin/pending").get(verifyAdminJWT, getPendingAdminBlogs);
 /* ================================
    ADMIN ROUTES
 ================================ */
