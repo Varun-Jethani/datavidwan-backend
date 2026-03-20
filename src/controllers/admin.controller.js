@@ -4,6 +4,30 @@ import adminModel from "../models/admin.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+const getAdminCookieOptions = (req) => {
+  const forwardedProto = req.headers["x-forwarded-proto"];
+  const isSecure =
+    req.secure ||
+    forwardedProto === "https" ||
+    process.env.NODE_ENV === "production";
+
+  const options = {
+    httpOnly: true,
+    secure: isSecure,
+    sameSite: isSecure ? "none" : "lax",
+    path: "/",
+  };
+
+  const configuredDomain = process.env.ADMIN_COOKIE_DOMAIN?.trim();
+  if (configuredDomain) {
+    options.domain = configuredDomain;
+  } else if (req.hostname?.endsWith("datavidwan.com")) {
+    options.domain = ".datavidwan.com";
+  }
+
+  return options;
+};
+
 /* ================= REGISTER ================= */
 const registerAdmin = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
@@ -57,11 +81,8 @@ const loginAdmin = asyncHandler(async (req, res) => {
   );
 
   res.cookie("adminToken", token, {
-    httpOnly: true, // 🔐 IMPORTANT
-    secure: true,
-    sameSite: "none",
+    ...getAdminCookieOptions(req),
     maxAge: 24 * 60 * 60 * 1000,
-    domain: ".datavidwan.com",
   });
 
   return res.status(200).json(
@@ -77,12 +98,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
 
 /* ================= LOGOUT (JWT FREE) ================= */
 const logoutAdmin = asyncHandler(async (req, res) => {
-  res.clearCookie("adminToken", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-    domain: ".datavidwan.com",
-  });
+  res.clearCookie("adminToken", getAdminCookieOptions(req));
 
   return res.status(200).json(new ApiResponse(true, "Logout successful"));
 });

@@ -6,15 +6,22 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
+
+app.set("trust proxy", 1);
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:3000",
+  "https://datavidwan.com",
+  "https://www.datavidwan.com",
+  "https://admin.datavidwan.com",
+  process.env.FRONTEND_URL,
+  process.env.ADMIN_URL,
+].filter(Boolean);
+
 const corsOptions = {
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:3000",
-    "https://datavidwan.com",
-    "https://www.datavidwan.com",
-    "https://admin.datavidwan.com",
-  ],
+  origin: allowedOrigins,
   optionsSuccessStatus: 200,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
